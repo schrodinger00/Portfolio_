@@ -1,0 +1,340 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --color-paper-light: #f4f2eb;
+  --color-paper-center: #f4f2eb;
+  --color-paper-base: #efede4;
+  --color-paper-edge: #e8e5da;
+  --color-paper-card: #f5f3ec;
+
+  --color-ink: #141311;
+  --color-ink-soft: #4e4c45;
+  --color-ink-muted: #6e6b62;
+  --color-ink-faint: rgba(20, 19, 17, 0.14);
+}
+
+:root {
+  --paper-light: #f4f2eb;
+  --paper-base: #efede4;
+  --paper-edge: #e8e5da;
+  --ink: #141311;
+  --ink-soft: #4e4c45;
+  --ink-muted: #6e6b62;
+  --grain-opacity: 0.56;
+  --hairline: color-mix(in srgb, var(--ink) 15%, transparent);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  background: radial-gradient(circle at 50% 44%,
+      var(--paper-light) 0%,
+      var(--paper-base) 56%,
+      var(--paper-edge) 100%);
+  color: var(--ink);
+  font-family: "Inter", sans-serif;
+  overflow-x: hidden;
+  user-select: none;
+  transition: color 0.3s ease;
+}
+
+/* Full-Viewport Procedural Cotton-Paper Grain Layer */
+#GrainCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  opacity: var(--grain-opacity);
+  transition: opacity 0.4s ease;
+}
+
+/* Full-Viewport Composited Ink Splash Perimeter Layer */
+.ink-page-splashes {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+  color: var(--ink);
+  transition: color 0.35s ease;
+}
+
+.ink-page-splash {
+  position: absolute;
+  contain: strict;
+}
+
+.ink-page-splash.is-animated {
+  will-change: transform;
+  animation: inkSplashFloat 22s ease-in-out infinite;
+}
+
+.ink-page-splashes.is-paused .ink-page-splash.is-animated {
+  animation-play-state: paused;
+}
+
+@keyframes inkSplashFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot-a, 0deg));
+  }
+  50% {
+    transform: translate3d(var(--dx, 10px), var(--dy, -22px), 0) rotate(var(--rot-b, 16deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-page-splash.is-animated {
+    animation: none;
+  }
+}
+
+/* Archival Double-Border Tarot Card Frame */
+.tarot-stage {
+  perspective: 960px;
+}
+
+.tarot-frame {
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+  background: color-mix(in srgb, var(--paper-light) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 78%, transparent);
+  box-shadow:
+    0 10px 30px -15px color-mix(in srgb, var(--ink) 16%, transparent),
+    inset 0 0 0 4px color-mix(in srgb, var(--paper-light) 92%, transparent),
+    inset 0 0 0 5px color-mix(in srgb, var(--ink) 36%, transparent);
+  transition:
+    box-shadow 0.45s ease,
+    background-color 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.tarot-frame:hover {
+  box-shadow:
+    0 20px 40px -16px color-mix(in srgb, var(--ink) 24%, transparent),
+    inset 0 0 0 4px color-mix(in srgb, var(--paper-light) 95%, transparent),
+    inset 0 0 0 5px color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+.tarot-glare-sheen {
+  position: absolute;
+  width: 175%;
+  height: 175%;
+  left: -37.5%;
+  top: -37.5%;
+  opacity: 0;
+  will-change: transform, opacity;
+  background: radial-gradient(circle at center,
+      rgba(255, 251, 240, 0.24) 0%,
+      rgba(255, 246, 224, 0.08) 36%,
+      transparent 64%);
+}
+
+.tarot-frame .swap-btn {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease;
+}
+
+.tarot-frame:hover .swap-btn,
+.tarot-frame:focus-within .swap-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (hover: none) {
+  .tarot-frame .swap-btn {
+    opacity: 0.92;
+    transform: translateY(0);
+  }
+}
+
+/* Custom Archival Range Sliders */
+input[type="range"].ink-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: color-mix(in srgb, var(--ink) 22%, transparent);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"].ink-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 2px solid var(--paper-light);
+  box-shadow: 0 0 0 1px var(--ink);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+input[type="range"].ink-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.18);
+}
+
+input[type="range"].ink-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 2px solid var(--paper-light);
+  box-shadow: 0 0 0 1px var(--ink);
+  cursor: pointer;
+}
+
+/* Custom Scrollbar for Drawer & Modals */
+.archival-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.archival-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.archival-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ink) 24%, transparent);
+  border-radius: 999px;
+}
+
+/* Mood Droplet Selector Button */
+.droplet-btn {
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.droplet-btn:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+/* RuneCursor: GPU-Only CSS Transitions (Fine Pointer Devices Only) */
+@media (hover: hover) and (pointer: fine) {
+
+  html.has-rune-cursor,
+  html.has-rune-cursor *,
+  html.has-rune-cursor *:hover,
+  html.has-rune-cursor *:active {
+    cursor: none !important;
+  }
+}
+
+#RuneCursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.cursor-rolling-square {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  will-change: transform, opacity;
+  animation: spinSquare 5.5s linear infinite;
+  animation-play-state: paused;
+  transition: opacity 0.22s ease, transform 0.26s ease;
+}
+
+#RuneCursor.is-visible:not(.is-active) .cursor-rolling-square {
+  animation-play-state: running;
+}
+
+.cursor-alchemical-reticle {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+  transform: scale(0.55) rotate(-18deg);
+  transition: opacity 0.22s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cursor-hex-outer {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  animation: spinReticle 11s linear infinite;
+  animation-play-state: paused;
+}
+
+.cursor-hex-inner {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  animation: spinReticleReverse 14s linear infinite;
+  animation-play-state: paused;
+}
+
+.cursor-core-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+}
+
+#RuneCursor.is-active .cursor-rolling-square {
+  opacity: 0;
+  transform: scale(0.35) rotate(45deg);
+}
+
+#RuneCursor.is-active .cursor-alchemical-reticle {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+#RuneCursor.is-active .cursor-hex-outer,
+#RuneCursor.is-active .cursor-hex-inner {
+  animation-play-state: running;
+}
+
+@keyframes spinSquare {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinReticle {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinReticleReverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.loading-seal-spin {
+  will-change: transform;
+  animation: spinReticle 12s linear infinite;
+}
